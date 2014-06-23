@@ -38,6 +38,8 @@ function Options () {
 		}
 		return myClass;
 	});
+	self.Row = MyGame.Board.Places().length;
+	self.Column = MyGame.Board.Places()[self.Row].length;
 }
 
 var StartGame = function () {
@@ -69,11 +71,14 @@ var StartGame = function () {
 };
 
 function CheckPlayerWon() {
-	
+	var won = false;
+	won = CheckVertical();
 }
 
 function CheckVertical() {
-	
+	for (var i = 0; i < 3; i++) {
+
+	}
 }
 
 function CheckHorizontal() {
