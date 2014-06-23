@@ -16,6 +16,9 @@
 	line-height: 49px;
 }
 
+.player {
+  margin: 0 10px 0 10px;
+}
 
 .player-one {
 	float: left;
@@ -52,4 +55,9 @@
 	background: url(../Images/cross.png) no-repeat;
 	background-size: contain;
 	background-position: center;
+}
+
+.new-game {
+  font-size: 30px;
+  margin: 30px 0 10px 42%;
 }

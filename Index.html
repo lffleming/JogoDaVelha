@@ -13,7 +13,7 @@
 			<div class="players-wrapper">
 				<div class="player-one player">
 					<div class="name-wrapper">
-						Jogador 1: Lucas Fleming<span data-bind='text: PlayerOne.Name()' class="name"></span>
+						Jogador 1: <span data-bind='text: PlayerOne.Name()' class="name"></span>
 					</div>
 					<div class="name-wrapper">
 						Vitórias: <span data-bind='text: PlayerOne.Wins()' class="name"></span>
@@ -21,7 +21,7 @@
 				</div>
 				<div class="player-two player">
 					<div class="wins-wrapper">
-						Jogador 2: Lucas Fleming<span data-bind='text: PlayerTwo.Name()' class="name"></span>
+						Jogador 2: <span data-bind='text: PlayerTwo.Name()' class="name"></span>
 					</div>
 					<div class="wins-wrapper">
 						Vitórias: <span data-bind='text: PlayerTwo.Wins()' class="wins"></span>
@@ -31,13 +31,14 @@
 			</div>
 			<div class="game-wrapper">
 				<table class="game-board">
-					<tbody  data-bind='foreach: Board.Places'>
+					<tbody  data-bind='foreach: Board.Rows'>
 						<tr data-bind="foreach: Columns, attr: { 'class': 'row-' + $index() }">
 							<td data-bind= "click: $root.Mark ,attr: { 'class': Place.MyClass() + ' column-' + $index() }">
 							</td>						
 						</tr>
 					</tbody>
 				</table>
+				<input type='button' class='new-game' value='Novo Jogo' data-bind='click: StartNewGame' />
 			</div>
 		</div>
 	</body>

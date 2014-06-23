@@ -7,27 +7,27 @@ function Player () {
 		self.Wins(wins);
 	};
 }
-function Row () {
+function Row (r) {
 	var self = this;
 	self.Columns = ko.observableArray([
-			new Column(), new Column(), new Column()
+			new Column(r, 0), new Column(r, 1), new Column(r, 2)
 	]);
 }
 
-function Column () {
+function Column (r, c) {
 	var self = this;
-	self.Place = new Options();
+	self.Place = new Options(r, c);
 }
 
 function Board () {
 	var self = this;
-	self.Places = ko.observableArray([
-			new Row(), new Row(), new Row()
+	self.Rows = ko.observableArray([
+			new Row(0), new Row(1), new Row(2)
 	]);
 
 }
 
-function Options () {
+function Options (r, c) {
 	var self = this;
 	self.IsMarked = ko.observable(false);
 	self.WhoMarked = ko.observable(0);
@@ -38,8 +38,8 @@ function Options () {
 		}
 		return myClass;
 	});
-	self.Row = MyGame.Board.Places().length;
-	self.Column = MyGame.Board.Places()[self.Row].length;
+	self.Row = r;
+	self.Column = c;
 }
 
 var StartGame = function () {
@@ -48,13 +48,15 @@ var StartGame = function () {
 	self.PlayerTwo = new Player();
 	self.Board = new Board();
 	self.CurrentPlayer = ko.observable(1);
-	self.Mark = function(column) {
-		if (column.Place.IsMarked()) return;
+	self.Moves = 0;
+	self.Mark = function(place) {
+		if (place.Place.IsMarked()) return;
 
+		self.Moves++;
 		var player = self.CurrentPlayer();
-		column.Place.WhoMarked(player);
-		column.Place.IsMarked(true);
-		CheckPlayerWon();
+		place.Place.WhoMarked(player);
+		place.Place.IsMarked(true);
+		CheckPlayerWon(place.Place, player);
 		self.CurrentPlayer(player%2 + 1);
 	};
 	self.IncreaseWins = function (player) {
@@ -68,30 +70,97 @@ var StartGame = function () {
 		}
 	};
 
+	self.StartNewGame = function() {
+		self.Moves = 0;
+		self.Board.Rows.removeAll();
+		self.Board.Rows([new Row(0), new Row(1), new Row(2)]);
+	};
+
 };
 
-function CheckPlayerWon() {
+function CheckPlayerWon(place, player) {
 	var won = false;
-	won = CheckVertical();
-}
-
-function CheckVertical() {
-	for (var i = 0; i < 3; i++) {
-
+	CheckVertical(place.Column, player);
+	CheckHorizontal(place.Row, player);
+	if (place.Column == place.Row) {
+		CheckDiagonal(player);
+	}
+	if (place.Column + place.Row == 2) {
+		CheckReverseDiagonal(player);
+	}
+	if (MyGame.Moves == 9)
+	{
+		Draw();
 	}
 }
 
-function CheckHorizontal() {
+function CheckVertical(c, player) {
+	for(var i = 0; i < 3; i++) {
+		if(MyGame.Board.Rows()[i].Columns()[c].Place.WhoMarked() != player)
+		break;
+		if(i == 2){
+			PlayerWon(player);
+		}
+	}
 }
 
-function CheckDiagonal() {
+function CheckHorizontal(r, player) {
+	for(var i = 0; i < 3; i++) {
+		if(MyGame.Board.Rows()[r].Columns()[i].Place.WhoMarked() != player)
+		break;
+		if(i == 2){
+			PlayerWon(player);
+		}
+	}
+}
+
+function CheckDiagonal(player) {
+	for(var i = 0; i < 3; i++) {
+		if(MyGame.Board.Rows()[i].Columns()[i].Place.WhoMarked() != player)
+		break;
+		if(i == 2){
+			PlayerWon(player);
+		}
+	}
+}
+
+function CheckReverseDiagonal(player) {
+	for(var i = 0; i < 3; i++) {
+		if(MyGame.Board.Rows()[i].Columns()[2-i].Place.WhoMarked() != player)
+		break;
+		if(i == 2){
+			PlayerWon(player);
+		}
+	}
+}
+
+function PlayerWon (player) {
+	MyGame.IncreaseWins(player);
+	var name = "";
+	if (player == 1) {
+		name = MyGame.PlayerOne.Name();
+	}
+	else {
+		name = MyGame.PlayerTwo.Name();
+	}
+	if (confirm("Parabéns " + name + " você ganhou!\nDeseja jogar novamente?"))
+	{
+		MyGame.StartNewGame();
+	}
+}
+
+function Draw () {
+	if (confirm("Deu velha!\nDeseja jogar novamente?"))
+	{
+		MyGame.StartNewGame();
+	}
 }
 
 $(document).ready(function() {
 	MyGame = new StartGame();
 	ko.applyBindings(MyGame);
-	// var playerOne = prompt("Entre com o nome do Jogador 1 : ", "Nome");
-	// MyGame.PlayerOne.Name(playerOne);
-	// var playerTwo = prompt("Entre com o nome do Jogador 2 : ", "Nome");
-	// MyGame.PlayerTwo.Name(playerTwo);
+	var playerOne = prompt("Entre com o nome do Jogador 1 : ", "Nome");
+	MyGame.PlayerOne.Name(playerOne);
+	var playerTwo = prompt("Entre com o nome do Jogador 2 : ", "Nome");
+	MyGame.PlayerTwo.Name(playerTwo);
 });
