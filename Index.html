@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Jogo da Velha</title>
+		<script type='text/javascript' src='Scripts/jquery-2.1.1.min.js'></script>
+		<script type='text/javascript' src='Scripts/knockout-3.1.0.js'></script>
+		<script type='text/javascript' src='Scripts/script.js'></script>
+		<link rel="stylesheet" href="Styles/style.css" />
+	</head>
+	<body>
+		<div class="main-content">
+			<div class="players-wrapper">
+				<div class="player-one">
+					<div class="name-wrapper">
+						Jogador 1: <span data-bind='text: PlayerOne.Name()' class="name"></span>
+					</div>
+					<div class="name-wrapper">
+						Vitórias: <span data-bind='text: PlayerOne.Wins()' class="name"></span>
+					</div>
+				</div>
+				<div class="player-two">
+					<div class="name-wrapper">
+						Jogador 2: <span data-bind='text: PlayerTwo.Name()' class="name"></span>
+					</div>
+					<div class="name-wrapper">
+						Vitórias: <span data-bind='text: PlayerTwo.Wins()' class="wins"></span>
+					</div>
+				</div>
+			</div>
+			<div class="game-wrapper">
+				<table class="game-board">
+					<tbody  data-bind='foreach: Board.Places'>
+						<tr data-bind="foreach: Columns, attr: { 'class': 'row-' + $index() }">
+							<td data-bind= "attr: { 'class': 'column-' + $index() }">
+								<span data-bind="attr: {'class': Place.MyClass() }"></span>
+							</td>						
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</body>
+</html>
