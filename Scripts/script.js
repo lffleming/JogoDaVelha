@@ -57,7 +57,12 @@ var StartGame = function () {
 		place.Place.IsMarked(true);
 		CheckPlayerWon(place.Place, player);
 		self.CurrentPlayer(player%2 + 1);
+		if (self.AgainstComputer() && player == 1)
+		{
+			MarkComputer(self.CurrentPlayer());
+		}
 	};
+
 	self.IncreaseWins = function (player) {
 		self.Players[player - 1].AddWin();
 	};
@@ -70,9 +75,175 @@ var StartGame = function () {
 		self.Board.Rows([new Row(0), new Row(1), new Row(2)]);
 	};
 
+	self.AgainstComputer = ko.observable(false);
+
 	self.EndGame = ko.observable(false);
 
+	self.ChangePlayer = function() {
+		var playerTwo = "Computador";
+		if (self.AgainstComputer()) {
+			playerTwo = prompt("Entre com o nome do Jogador 2 : ", "Nome");
+			self.AgainstComputer(false);
+		}
+		else {
+			MyGame.AgainstComputer(true);
+		}
+		MyGame.Players[1].Name(playerTwo);
+		alert('Jogador 2 agora é '+ playerTwo +'.');
+		self.StartNewGame();
+	};
+
 };
+
+function MarkComputer  (player) {
+	var place = TryMarkVertical(player) || TryMarkVertical(1) || TryMarkCenterOrCorner(player) || TryMarkEmpty(player);
+	MyGame.Mark(place);
+	
+}
+
+function TryMarkVertical (player) {
+	var place = null;
+	for (var i = 0 ; i < 3; i++) {
+
+		if (MyGame.Board.Rows()[i].Columns()[0].Place.WhoMarked() == player &&
+		MyGame.Board.Rows()[i].Columns()[1].Place.WhoMarked() == player &&
+		!MyGame.Board.Rows()[i].Columns()[2].Place.IsMarked()) {
+			place = MyGame.Board.Rows()[i].Columns()[2];
+			break;
+		}
+		else if (MyGame.Board.Rows()[i].Columns()[0].Place.WhoMarked() == player &&
+		MyGame.Board.Rows()[i].Columns()[2].Place.WhoMarked() == player &&
+		!MyGame.Board.Rows()[i].Columns()[1].Place.IsMarked()) {
+			place = MyGame.Board.Rows()[i].Columns()[1];
+			break;
+		}
+		else if (MyGame.Board.Rows()[i].Columns()[2].Place.WhoMarked() == player &&
+		MyGame.Board.Rows()[i].Columns()[1].Place.WhoMarked() == player &&
+		!MyGame.Board.Rows()[i].Columns()[0].Place.IsMarked()) {
+			place = MyGame.Board.Rows()[i].Columns()[0];
+			break;
+		}
+
+	}
+
+	if (place === null) {
+		place = TryMarkHorizontal(player);
+	}
+	return place;
+
+}
+
+function TryMarkHorizontal (player) {
+	var place = null;
+	for (var i = 0 ; i < 3; i++) {
+
+		if (MyGame.Board.Rows()[0].Columns()[i].Place.WhoMarked() == player &&
+		MyGame.Board.Rows()[1].Columns()[i].Place.WhoMarked() == player &&
+		!MyGame.Board.Rows()[2].Columns()[i].Place.IsMarked()) {
+			place = MyGame.Board.Rows()[2].Columns()[i];
+			break;
+		}
+		else if (MyGame.Board.Rows()[0].Columns()[i].Place.WhoMarked() == player &&
+		MyGame.Board.Rows()[2].Columns()[i].Place.WhoMarked() == player &&
+		!MyGame.Board.Rows()[1].Columns()[i].Place.IsMarked()) {
+			place = MyGame.Board.Rows()[1].Columns()[i];
+			break;
+		}
+		else if (MyGame.Board.Rows()[1].Columns()[i].Place.WhoMarked() == player &&
+		MyGame.Board.Rows()[2].Columns()[i].Place.WhoMarked() == player &&
+		!MyGame.Board.Rows()[0].Columns()[i].Place.IsMarked()) {
+			place = MyGame.Board.Rows()[0].Columns()[i];
+			break;
+		}
+	}
+
+	if (place === null) {
+		place = TryMarkDiagonal(player);
+	}
+	return place;
+}
+
+function TryMarkDiagonal(player) {
+	var place = null;
+
+	if (MyGame.Board.Rows()[0].Columns()[0].Place.WhoMarked() == player &&
+	MyGame.Board.Rows()[1].Columns()[1].Place.WhoMarked() == player &&
+	!MyGame.Board.Rows()[2].Columns()[2].Place.IsMarked()) {
+		place = MyGame.Board.Rows()[2].Columns()[2];
+	}
+	else if (MyGame.Board.Rows()[0].Columns()[0].Place.WhoMarked() == player &&
+	MyGame.Board.Rows()[2].Columns()[2].Place.WhoMarked() == player &&
+	!MyGame.Board.Rows()[1].Columns()[1].Place.IsMarked()) {
+		place = MyGame.Board.Rows()[1].Columns()[1];
+	}
+	else if (MyGame.Board.Rows()[1].Columns()[1].Place.WhoMarked() == player &&
+	MyGame.Board.Rows()[2].Columns()[2].Place.WhoMarked() == player &&
+	!MyGame.Board.Rows()[0].Columns()[0].Place.IsMarked()) {
+		place = MyGame.Board.Rows()[0].Columns()[0];
+	}
+
+	if (place === null) {
+		place = TryMarkReverseDiagonal(player);
+	}
+	return place;
+}
+
+function TryMarkReverseDiagonal(player) {
+	var place = null;
+
+	if (MyGame.Board.Rows()[0].Columns()[2].Place.WhoMarked() == player &&
+	MyGame.Board.Rows()[1].Columns()[1].Place.WhoMarked() == player &&
+	!MyGame.Board.Rows()[2].Columns()[0].Place.IsMarked()) {
+		place = MyGame.Board.Rows()[2].Columns()[0];
+	}
+	else if (MyGame.Board.Rows()[0].Columns()[2].Place.WhoMarked() == player &&
+	MyGame.Board.Rows()[2].Columns()[0].Place.WhoMarked() == player &&
+	!MyGame.Board.Rows()[1].Columns()[1].Place.IsMarked()) {
+		place = MyGame.Board.Rows()[1].Columns()[1];
+	}
+	else if (MyGame.Board.Rows()[1].Columns()[1].Place.WhoMarked() == player &&
+	MyGame.Board.Rows()[2].Columns()[0].Place.WhoMarked() == player &&
+	!MyGame.Board.Rows()[0].Columns()[2].Place.IsMarked()) {
+		place = MyGame.Board.Rows()[0].Columns()[2];
+	}
+
+	return place;
+}
+
+function TryMarkCenterOrCorner (player) {
+	var place = null;
+	if (!MyGame.Board.Rows()[1].Columns()[1].Place.IsMarked()) {
+		place = MyGame.Board.Rows()[1].Columns()[1];
+	} 
+	else {
+		for (var i = 0 ; i < 3; i++) {
+
+			if (!MyGame.Board.Rows()[i].Columns()[i].Place.IsMarked()) {
+				place = MyGame.Board.Rows()[i].Columns()[i];
+				break;
+			}
+			else if (!MyGame.Board.Rows()[i].Columns()[2-i].Place.IsMarked()) {
+				place = MyGame.Board.Rows()[i].Columns()[2-i];
+				break;
+			}
+		}
+	}
+	return place;
+}
+
+function TryMarkEmpty (player) {
+	var place = null;
+	end_for:
+	for (var i = 0 ; i < 3; i++) {
+		for (var x = 0 ; x < 3; x++) {
+			if (!MyGame.Board.Rows()[i].Columns()[x].Place.IsMarked()) {
+				place = MyGame.Board.Rows()[i].Columns()[x];
+				break end_for;
+			}
+		}
+	}
+	return place;	
+}
 
 function CheckPlayerWon(place, player) {
 	CheckVertical(place.Column, player);
@@ -154,6 +325,12 @@ $(document).ready(function() {
 	ko.applyBindings(MyGame);
 	var playerOne = prompt("Entre com o nome do Jogador 1 : ", "Nome");
 	MyGame.Players[0].Name(playerOne);
-	var playerTwo = prompt("Entre com o nome do Jogador 2 : ", "Nome");
+	var playerTwo = "Computador";
+	if (confirm("Deseja adicionar um jogador 2?")) {
+		playerTwo = prompt("Entre com o nome do Jogador 2 : ", "Nome");
+	}
+	else {
+		MyGame.AgainstComputer(true);
+	}
 	MyGame.Players[1].Name(playerTwo);
 });
