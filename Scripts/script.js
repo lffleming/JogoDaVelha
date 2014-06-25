@@ -44,8 +44,7 @@ function Options (r, c) {
 
 var StartGame = function () {
 	var self = this;
-	self.PlayerOne = new Player();
-	self.PlayerTwo = new Player();
+	self.Players = [new Player(), new Player()];
 	self.Board = new Board();
 	self.CurrentPlayer = ko.observable(1);
 	self.Moves = 0;
@@ -60,18 +59,12 @@ var StartGame = function () {
 		self.CurrentPlayer(player%2 + 1);
 	};
 	self.IncreaseWins = function (player) {
-		switch(player) {
-			case 1:
-				self.PlayerOne.AddWin();
-				break;
-			case 2:
-				self.PlayerTwo.AddWin();
-				break;
-		}
+		self.Players[player - 1].AddWin();
 	};
 
 	self.StartNewGame = function() {
 		self.Moves = 0;
+		self.CurrentPlayer(1);
 		self.Board.Rows.removeAll();
 		self.Board.Rows([new Row(0), new Row(1), new Row(2)]);
 	};
@@ -79,7 +72,6 @@ var StartGame = function () {
 };
 
 function CheckPlayerWon(place, player) {
-	var won = false;
 	CheckVertical(place.Column, player);
 	CheckHorizontal(place.Row, player);
 	if (place.Column == place.Row) {
@@ -137,12 +129,7 @@ function CheckReverseDiagonal(player) {
 function PlayerWon (player) {
 	MyGame.IncreaseWins(player);
 	var name = "";
-	if (player == 1) {
-		name = MyGame.PlayerOne.Name();
-	}
-	else {
-		name = MyGame.PlayerTwo.Name();
-	}
+	name = MyGame.Players[player -1].Name();
 	if (confirm("Parabéns " + name + " você ganhou!\nDeseja jogar novamente?"))
 	{
 		MyGame.StartNewGame();
@@ -160,7 +147,7 @@ $(document).ready(function() {
 	MyGame = new StartGame();
 	ko.applyBindings(MyGame);
 	var playerOne = prompt("Entre com o nome do Jogador 1 : ", "Nome");
-	MyGame.PlayerOne.Name(playerOne);
+	MyGame.Players[0].Name(playerOne);
 	var playerTwo = prompt("Entre com o nome do Jogador 2 : ", "Nome");
-	MyGame.PlayerTwo.Name(playerTwo);
+	MyGame.Players[1].Name(playerTwo);
 });
