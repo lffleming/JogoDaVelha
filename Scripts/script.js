@@ -49,7 +49,7 @@ var StartGame = function () {
 	self.CurrentPlayer = ko.observable(1);
 	self.Moves = 0;
 	self.Mark = function(place) {
-		if (place.Place.IsMarked()) return;
+		if (place.Place.IsMarked() || self.EndGame()) return;
 
 		self.Moves++;
 		var player = self.CurrentPlayer();
@@ -64,10 +64,13 @@ var StartGame = function () {
 
 	self.StartNewGame = function() {
 		self.Moves = 0;
+		self.EndGame(false);
 		self.CurrentPlayer(1);
 		self.Board.Rows.removeAll();
 		self.Board.Rows([new Row(0), new Row(1), new Row(2)]);
 	};
+
+	self.EndGame = ko.observable(false);
 
 };
 
@@ -128,6 +131,8 @@ function CheckReverseDiagonal(player) {
 
 function PlayerWon (player) {
 	MyGame.IncreaseWins(player);
+	MyGame.EndGame(true);
+	MyGame.Moves = 0;
 	var name = "";
 	name = MyGame.Players[player -1].Name();
 	if (confirm("Parabéns " + name + " você ganhou!\nDeseja jogar novamente?"))
@@ -137,6 +142,7 @@ function PlayerWon (player) {
 }
 
 function Draw () {
+	MyGame.EndGame(true);
 	if (confirm("Deu velha!\nDeseja jogar novamente?"))
 	{
 		MyGame.StartNewGame();

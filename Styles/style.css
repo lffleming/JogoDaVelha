@@ -84,7 +84,12 @@
 	background-position: center;
 }
 
-.new-game {
-  font-size: 30px;
-  margin: 30px 0 10px 42%;
+.new-game-wrapper {
+  display: flex;
 }
+
+.new-game {
+  margin: 30px auto 10px auto;
+  font-size: 30px;
+}
+
