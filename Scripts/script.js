@@ -360,7 +360,12 @@ function PlayerWon (player) {
 	MyGame.Moves = 0;
 	var name = "";
 	name = MyGame.Players[player -1].Name();
-	if (confirm("Parabéns " + name + " você ganhou!\nDeseja jogar novamente?"))
+	var message = "Parabéns " + name + " você ganhou!";
+	if (MyGame.AgainstComputer() && player == 2)
+	{
+		message = "Você perdeu!";
+	}
+	if (confirm(message + "\nDeseja jogar novamente?"))
 	{
 		MyGame.StartNewGame();
 	}
