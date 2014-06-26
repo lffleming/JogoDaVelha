@@ -7,6 +7,7 @@ function Player () {
 		self.Wins(wins);
 	};
 }
+
 function Row (r) {
 	var self = this;
 	self.Columns = ko.observableArray([
@@ -24,7 +25,6 @@ function Board () {
 	self.Rows = ko.observableArray([
 			new Row(0), new Row(1), new Row(2)
 	]);
-
 }
 
 function Options (r, c) {
@@ -88,39 +88,41 @@ var StartGame = function () {
 		else {
 			MyGame.AgainstComputer(true);
 		}
+		MyGame.Players[0].Wins(0);
+		MyGame.Players[1].Wins(0);
 		MyGame.Players[1].Name(playerTwo);
 		alert('Jogador 2 agora é '+ playerTwo +'.');
 		self.StartNewGame();
 	};
-
 };
 
 function MarkComputer  (player) {
-	var place = TryMarkVertical(player) || TryMarkVertical(1) || TryMarkCenterOrCorner(player) || TryMarkEmpty(player);
+	var place = TryMarkVertical(player) || TryMarkVertical(1) || TryAvoidFork(player) ||
+	TryMarkCenter(player) || TryOppositeCorner(player) || TryMarkCorner(player) || TryMarkSides(player);
 	MyGame.Mark(place);
-	
 }
 
 function TryMarkVertical (player) {
 	var place = null;
+	var rows = MyGame.Board.Rows();
 	for (var i = 0 ; i < 3; i++) {
 
-		if (MyGame.Board.Rows()[i].Columns()[0].Place.WhoMarked() == player &&
-		MyGame.Board.Rows()[i].Columns()[1].Place.WhoMarked() == player &&
-		!MyGame.Board.Rows()[i].Columns()[2].Place.IsMarked()) {
-			place = MyGame.Board.Rows()[i].Columns()[2];
+		if (rows[i].Columns()[0].Place.WhoMarked() == player &&
+		rows[i].Columns()[1].Place.WhoMarked() == player &&
+		!rows[i].Columns()[2].Place.IsMarked()) {
+			place = rows[i].Columns()[2];
 			break;
 		}
-		else if (MyGame.Board.Rows()[i].Columns()[0].Place.WhoMarked() == player &&
-		MyGame.Board.Rows()[i].Columns()[2].Place.WhoMarked() == player &&
-		!MyGame.Board.Rows()[i].Columns()[1].Place.IsMarked()) {
-			place = MyGame.Board.Rows()[i].Columns()[1];
+		else if (rows[i].Columns()[0].Place.WhoMarked() == player &&
+		rows[i].Columns()[2].Place.WhoMarked() == player &&
+		!rows[i].Columns()[1].Place.IsMarked()) {
+			place = rows[i].Columns()[1];
 			break;
 		}
-		else if (MyGame.Board.Rows()[i].Columns()[2].Place.WhoMarked() == player &&
-		MyGame.Board.Rows()[i].Columns()[1].Place.WhoMarked() == player &&
-		!MyGame.Board.Rows()[i].Columns()[0].Place.IsMarked()) {
-			place = MyGame.Board.Rows()[i].Columns()[0];
+		else if (rows[i].Columns()[2].Place.WhoMarked() == player &&
+		rows[i].Columns()[1].Place.WhoMarked() == player &&
+		!rows[i].Columns()[0].Place.IsMarked()) {
+			place = rows[i].Columns()[0];
 			break;
 		}
 
@@ -130,29 +132,29 @@ function TryMarkVertical (player) {
 		place = TryMarkHorizontal(player);
 	}
 	return place;
-
 }
 
 function TryMarkHorizontal (player) {
 	var place = null;
+	var rows = MyGame.Board.Rows();
 	for (var i = 0 ; i < 3; i++) {
 
-		if (MyGame.Board.Rows()[0].Columns()[i].Place.WhoMarked() == player &&
-		MyGame.Board.Rows()[1].Columns()[i].Place.WhoMarked() == player &&
-		!MyGame.Board.Rows()[2].Columns()[i].Place.IsMarked()) {
-			place = MyGame.Board.Rows()[2].Columns()[i];
+		if (rows[0].Columns()[i].Place.WhoMarked() == player &&
+		rows[1].Columns()[i].Place.WhoMarked() == player &&
+		!rows[2].Columns()[i].Place.IsMarked()) {
+			place = rows[2].Columns()[i];
 			break;
 		}
-		else if (MyGame.Board.Rows()[0].Columns()[i].Place.WhoMarked() == player &&
-		MyGame.Board.Rows()[2].Columns()[i].Place.WhoMarked() == player &&
-		!MyGame.Board.Rows()[1].Columns()[i].Place.IsMarked()) {
-			place = MyGame.Board.Rows()[1].Columns()[i];
+		else if (rows[0].Columns()[i].Place.WhoMarked() == player &&
+		rows[2].Columns()[i].Place.WhoMarked() == player &&
+		!rows[1].Columns()[i].Place.IsMarked()) {
+			place = rows[1].Columns()[i];
 			break;
 		}
-		else if (MyGame.Board.Rows()[1].Columns()[i].Place.WhoMarked() == player &&
-		MyGame.Board.Rows()[2].Columns()[i].Place.WhoMarked() == player &&
-		!MyGame.Board.Rows()[0].Columns()[i].Place.IsMarked()) {
-			place = MyGame.Board.Rows()[0].Columns()[i];
+		else if (rows[1].Columns()[i].Place.WhoMarked() == player &&
+		rows[2].Columns()[i].Place.WhoMarked() == player &&
+		!rows[0].Columns()[i].Place.IsMarked()) {
+			place = rows[0].Columns()[i];
 			break;
 		}
 	}
@@ -165,21 +167,22 @@ function TryMarkHorizontal (player) {
 
 function TryMarkDiagonal(player) {
 	var place = null;
+	var rows = MyGame.Board.Rows();
 
-	if (MyGame.Board.Rows()[0].Columns()[0].Place.WhoMarked() == player &&
-	MyGame.Board.Rows()[1].Columns()[1].Place.WhoMarked() == player &&
-	!MyGame.Board.Rows()[2].Columns()[2].Place.IsMarked()) {
-		place = MyGame.Board.Rows()[2].Columns()[2];
+	if (rows[0].Columns()[0].Place.WhoMarked() == player &&
+	rows[1].Columns()[1].Place.WhoMarked() == player &&
+	!rows[2].Columns()[2].Place.IsMarked()) {
+		place = rows[2].Columns()[2];
 	}
-	else if (MyGame.Board.Rows()[0].Columns()[0].Place.WhoMarked() == player &&
-	MyGame.Board.Rows()[2].Columns()[2].Place.WhoMarked() == player &&
-	!MyGame.Board.Rows()[1].Columns()[1].Place.IsMarked()) {
-		place = MyGame.Board.Rows()[1].Columns()[1];
+	else if (rows[0].Columns()[0].Place.WhoMarked() == player &&
+	rows[2].Columns()[2].Place.WhoMarked() == player &&
+	!rows[1].Columns()[1].Place.IsMarked()) {
+		place = rows[1].Columns()[1];
 	}
-	else if (MyGame.Board.Rows()[1].Columns()[1].Place.WhoMarked() == player &&
-	MyGame.Board.Rows()[2].Columns()[2].Place.WhoMarked() == player &&
-	!MyGame.Board.Rows()[0].Columns()[0].Place.IsMarked()) {
-		place = MyGame.Board.Rows()[0].Columns()[0];
+	else if (rows[1].Columns()[1].Place.WhoMarked() == player &&
+	rows[2].Columns()[2].Place.WhoMarked() == player &&
+	!rows[0].Columns()[0].Place.IsMarked()) {
+		place = rows[0].Columns()[0];
 	}
 
 	if (place === null) {
@@ -190,59 +193,110 @@ function TryMarkDiagonal(player) {
 
 function TryMarkReverseDiagonal(player) {
 	var place = null;
+	var rows = MyGame.Board.Rows();
 
-	if (MyGame.Board.Rows()[0].Columns()[2].Place.WhoMarked() == player &&
-	MyGame.Board.Rows()[1].Columns()[1].Place.WhoMarked() == player &&
-	!MyGame.Board.Rows()[2].Columns()[0].Place.IsMarked()) {
-		place = MyGame.Board.Rows()[2].Columns()[0];
+	if (rows[0].Columns()[2].Place.WhoMarked() == player &&
+	rows[1].Columns()[1].Place.WhoMarked() == player &&
+	!rows[2].Columns()[0].Place.IsMarked()) {
+		place = rows[2].Columns()[0];
 	}
-	else if (MyGame.Board.Rows()[0].Columns()[2].Place.WhoMarked() == player &&
-	MyGame.Board.Rows()[2].Columns()[0].Place.WhoMarked() == player &&
-	!MyGame.Board.Rows()[1].Columns()[1].Place.IsMarked()) {
-		place = MyGame.Board.Rows()[1].Columns()[1];
+	else if (rows[0].Columns()[2].Place.WhoMarked() == player &&
+	rows[2].Columns()[0].Place.WhoMarked() == player &&
+	!rows[1].Columns()[1].Place.IsMarked()) {
+		place = rows[1].Columns()[1];
 	}
-	else if (MyGame.Board.Rows()[1].Columns()[1].Place.WhoMarked() == player &&
-	MyGame.Board.Rows()[2].Columns()[0].Place.WhoMarked() == player &&
-	!MyGame.Board.Rows()[0].Columns()[2].Place.IsMarked()) {
-		place = MyGame.Board.Rows()[0].Columns()[2];
+	else if (rows[1].Columns()[1].Place.WhoMarked() == player &&
+	rows[2].Columns()[0].Place.WhoMarked() == player &&
+	!rows[0].Columns()[2].Place.IsMarked()) {
+		place = rows[0].Columns()[2];
 	}
 
 	return place;
 }
 
-function TryMarkCenterOrCorner (player) {
+function TryAvoidFork  (player) {
+	var rows = MyGame.Board.Rows();
 	var place = null;
-	if (!MyGame.Board.Rows()[1].Columns()[1].Place.IsMarked()) {
-		place = MyGame.Board.Rows()[1].Columns()[1];
-	} 
-	else {
-		for (var i = 0 ; i < 3; i++) {
+	if (rows[0].Columns()[0].Place.WhoMarked() == 1 &&
+		rows[2].Columns()[2].Place.WhoMarked() == 1) {
+		place = TryMarkSides(player);
+	}
+	if (!place && rows[0].Columns()[2].Place.WhoMarked() == 1 &&
+		rows[2].Columns()[0].Place.WhoMarked() == 1) {
+		place = TryMarkSides(player);
+	}
 
-			if (!MyGame.Board.Rows()[i].Columns()[i].Place.IsMarked()) {
-				place = MyGame.Board.Rows()[i].Columns()[i];
-				break;
-			}
-			else if (!MyGame.Board.Rows()[i].Columns()[2-i].Place.IsMarked()) {
-				place = MyGame.Board.Rows()[i].Columns()[2-i];
-				break;
-			}
+	return place;
+}
+
+function TryMarkCenter (player) {
+	var place = null;
+	var rows = MyGame.Board.Rows();
+	if (!rows[1].Columns()[1].Place.IsMarked()) {
+		place = rows[1].Columns()[1];
+	}
+	return place;
+}
+
+function TryOppositeCorner (player) {
+	var place = null;
+	var rows = MyGame.Board.Rows();
+	for (var i = 0 ; i < 3; i=i+2) {
+
+		var oRow = Math.abs(i-2);
+		var diagonal = rows[i].Columns()[i].Place;
+		var reverseDiagonal = rows[i].Columns()[2-i].Place;
+
+		if (diagonal.IsMarked() &&
+			diagonal.WhoMarked() != player &&
+			!rows[oRow].Columns()[oRow].Place.IsMarked()) {
+			
+			place = rows[oRow].Columns()[oRow];
+			break;
+		}
+		else if (reverseDiagonal.IsMarked() &&
+			reverseDiagonal.WhoMarked() != player &&
+			!rows[2-i].Columns()[i].Place.IsMarked()) {
+
+			place = rows[2-i].Columns()[i];
+			break;
 		}
 	}
 	return place;
 }
 
-function TryMarkEmpty (player) {
+function TryMarkCorner (player) {
 	var place = null;
+	var rows = MyGame.Board.Rows();
+	for (var i = 0 ; i < 3; i=i+2) {
+
+		if (!rows[i].Columns()[i].Place.IsMarked()) {
+			place = rows[i].Columns()[i];
+			break;
+		}
+		else if (!rows[i].Columns()[2-i].Place.IsMarked()) {
+			place = rows[i].Columns()[2-i];
+			break;
+		}
+	}
+	return place;
+}
+
+function TryMarkSides (player) {
+	var place = null;
+	var rows = MyGame.Board.Rows();
 	end_for:
-	for (var i = 0 ; i < 3; i++) {
-		for (var x = 0 ; x < 3; x++) {
-			if (!MyGame.Board.Rows()[i].Columns()[x].Place.IsMarked()) {
-				place = MyGame.Board.Rows()[i].Columns()[x];
-				break end_for;
+	for (var i = 0 ; i < 2; i++) {
+			if (!rows[i].Columns()[i+1].Place.IsMarked()) {
+				place = rows[i].Columns()[i+1];
+				break;
 			}
-		}
+			else if (!rows[i+1].Columns()[i].Place.IsMarked()) {
+				place = rows[i+1].Columns()[i];
+				break;
+			}
 	}
-	return place;	
+	return place;
 }
 
 function CheckPlayerWon(place, player) {
